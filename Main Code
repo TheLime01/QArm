@@ -13,72 +13,64 @@ potentiometer = potentiometer_interface()
 # STUDENT CODE BEGINS
 #---------------------------------------------------------------------------------
 
-## Function to immediately get the coordinate of the Q-Arm
-## Used for testing purposes
-def xyz_coords():
-    print(arm.effector_position())
+def main():
 
-## Checks if the Q-Arm is at the correct container
-## XYZ coords of container found by trial and error
-def is_at_container(colour):
-    if colour == "red":
-        container_coords = [0.118, -0.389, 0.483]
-    elif colour == "blue":
-        container_coords = [0.021, 0.406, 0.483]
-    elif colour == "green":
-        container_coords = [-0.338, 0.226, 0.483]
+    rotate_qarm(colour)
+    drop_off()
 
-    position = arm.effector_position()
-    position_x = position[0]
-    position_y = position[1]
-    position_z = position[2]
+    ## Checks if the Q-Arm is at the correct container
+    ## XYZ coords of container found by trial and error
+    def is_at_container(colour):
+        if colour == "red":
+            container_coords = [0.118, -0.389]
+        elif colour == "blue":
+            container_coords = [0.021, 0.406]
+        elif colour == "green":
+            container_coords = [-0.338, 0.226]
 
-    if ((position_x == container_coords[0])
-        and (position_y == container_coords[1])
-        and (position_z == container_coords[2])):
-        return True
-    else:
-        return False
-    
-def rotate_qarm(colour):
-    terminate = is_at_container(colour)
-    old_reading = potentiometer.right()
-    
-    while not terminate:
-        new_reading = potentiometer.right()
-        delta = new_reading - old_reading
-        increment = 348*delta
-        arm.rotate_base(increment)
-        time.sleep(0.2)
-        old_reading = new_reading
-        terminate = is_at_container(colour)
+        position = arm.effector_position()
+        position_x = position[0]
+        position_y = position[1]
 
-def drop_off(container_location):
-    dropoff_position = potentiometer.left()
-    arm.activate_autoclaves()
-    coords=[]
-    if dropoff_position >0.5 and dropoff_position <1: #Position 1, placement of a small container on top
-        coords = container_location[0]
-    
-    elif dropoff_position == 1:#Position 2, Placement of a large container inside 
-         coords = container_location[1]
+        if (position_x == container_coords[0]) and (position_y == container_coords[1]):
+            return True
+        else:
+            return False
         
-    arm.move_arm(coords[0], coords[1], coords[2])
-    time.sleep(2)
-    if dropoff_position == 1:
-        arm.open_autoclave(container_location[2], True)
-    arm.control_gripper(45)
-    time.sleep(2)
-    if dropoff_position == 1:
-        arm.open_autoclave(container_location[2], False)
-    arm.deactivate_autoclaves()
-    arm.home()
+    def rotate_qarm(colour):
+        terminate = is_at_container(colour)
+        old_reading = potentiometer.right()
+        
+        while not terminate:
+            new_reading = potentiometer.right()
+            delta = new_reading - old_reading
+            increment = 348*delta
+            arm.rotate_base(increment)
+            time.sleep(0.2)
+            old_reading = new_reading
+            terminate = is_at_container(colour)
 
+    def drop_off():
+        dropoff_position = potentiometer.left()
+        arm.activate_autoclaves()
 
-red = [[0.0, -0.56, 0.296], [0.00, -0.323, 0.166], "red"]
-green = [[-0.507, 0.237, 0.296], [-0.507, 0.161, 0.166], "green"]
-blue = [[0.00, 0.56, 0.296], [0.00, 0.323, 0.166], "blue"]
+        if dropoff_position == 1:#Position 1, placement of a small container on top
+            move_QArm(-35,50)
+        
+        else:#Position 2, Placement of a large container inside 
+            arm.open_autoclave(container_location[2], True)
+            move_QArm(20,25)
+            time.sleep(2)
+            arm.open_autoclave(container_location[2], False)
 
+        arm.deactivate_autoclaves()
+        arm.home()
+
+    def move_QArm(a, b):
+        arm.rotate_elbow(a)
+        arm.rotate_shoulder(b)
+        time.sleep(2)
+        arm.control_gripper(45)
 
 #---------------------------------------------------------------------------------
 # STUDENT CODE ENDS
