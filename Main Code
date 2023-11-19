@@ -53,6 +53,31 @@ def rotate_qarm(colour):
         old_reading = new_reading
         terminate = is_at_container(colour)
 
+def drop_off(container_location):
+    dropoff_position = potentiometer.left()
+    arm.activate_autoclaves()
+    coords=[]
+    if dropoff_position >0.5 and dropoff_position <1: #Position 1, placement of a small container on top
+        coords = container_location[0]
+    
+    elif dropoff_position == 1:#Position 2, Placement of a large container inside 
+         coords = container_location[1]
+        
+    arm.move_arm(coords[0], coords[1], coords[2])
+    time.sleep(2)
+    if dropoff_position == 1:
+        arm.open_autoclave(container_location[2], True)
+    arm.control_gripper(45)
+    time.sleep(2)
+    if dropoff_position == 1:
+        arm.open_autoclave(container_location[2], False)
+    arm.deactivate_autoclaves()
+    arm.home()
+
+
+red = [[0.0, -0.56, 0.296], [0.00, -0.323, 0.166], "red"]
+green = [[-0.507, 0.237, 0.296], [-0.507, 0.161, 0.166], "green"]
+blue = [[0.00, 0.56, 0.296], [0.00, 0.323, 0.166], "blue"]
 
 
 #---------------------------------------------------------------------------------
