@@ -14,71 +14,71 @@ potentiometer = potentiometer_interface()
 #---------------------------------------------------------------------------------
 
 def main():
-    num = 2
-    if num == 1 or num == 4:
+    num = 2 #tells the code what container spawned
+    if num == 1 or num == 4:  
         box = 'red'
     elif num == 2 or num == 5:
         box = 'green'
     else:
         box = 'blue'
         
-    arm.spawn_cage(num)
+    arm.spawn_cage(num) #calls every function
     time.sleep(2)
     pick_up()
     time.sleep(2)
     rotate_qarm(box)
     time.sleep(10)
     drop_off(box)
+        
     
 
-def pick_up():
-    arm.move_arm(0.554, 0.049, -0.056)
+def pick_up():  #moves the q arm to pick up container from spawn location 
+    arm.move_arm(0.554, 0.049, -0.056) 
     time.sleep(2)
     arm.control_gripper(45)
     time.sleep(2)
     arm.move_arm(0.406, 0.0, 0.483)
-    print("MOBVE ARM NOW!!!")
     
-def is_at_container(colour):
+def is_at_container(colour): #compares q arm container to location of autoclave to know when to stop 
     if colour == "red":
-        container_coords = [0.046, -0.403] #26%
+        container_coords = [0.046, -0.403] #26% 
     elif colour == "blue":
         container_coords = [0.021, 0.406]
     elif colour == "green":
-        container_coords = [-0.373, 0.161] #95
+        container_coords = [-0.373, 0.161] #95%
 
     position = arm.effector_position()
     position_x = position[0]
     position_y = position[1]
 
-    if (position_x == container_coords[0]) and (position_y == container_coords[1]):
+    if (position_x == container_coords[0]) and (position_y == container_coords[1]): #returns true if coordinates match
         return True
-    else:
+    else: 
         return False
 
-def rotate_qarm(colour):
+def rotate_qarm(colour):  
     terminate = is_at_container(colour)
     old_reading = potentiometer.right()
 
-    while not terminate:
-        print(arm.effector_position())
-        new_reading = potentiometer.right()
-        delta = new_reading - old_reading
-        increment = 348*delta
+    while not terminate: #While q arm is in front of container, keep running
+        new_reading = potentiometer.right()#takes value from potentiometer and converts to integer
+        delta = new_reading - old_reading #find the change in potentiometer value
+        increment = 348*delta 
         arm.rotate_base(increment)
         time.sleep(0.2)
         old_reading = new_reading
-        terminate = is_at_container(colour)
+        terminate = is_at_container(colour) #checks if q arm is in front of container
 
-def drop_off(container):
-    print("TO LATE!!")
-    dropoff_position = potentiometer.left()
+        
+
+def drop_off(container): #drops off container based off left potentiometer value
+    dropoff_position = potentiometer.left() 
     arm.activate_autoclaves()
 
-    if dropoff_position == 1:#Position 1, placement of a small container on top
+    if dropoff_position == 1:#Position 1, placement of a large container on top
         move_QArm(-35,50)
     
-    elif dropoff_position >= 0.5:#Position 2, Placement of a large container inside 
+    elif dropoff_position >= 0.5:#Position 2, Placement of a small container inside 
         arm.open_autoclave(container, True)
         time.sleep(2)
         move_QArm(20,25)
@@ -88,13 +88,37 @@ def drop_off(container):
     arm.deactivate_autoclaves()
     arm.home()
 
-def move_QArm(a, b):
+def move_QArm(a, b): #moves q arm based on parameters 
     arm.rotate_elbow(a)
     time.sleep(2)
     arm.rotate_shoulder(b)
     time.sleep(2)
     arm.control_gripper(-45)
     time.sleep(2)
+
+
+""" def continue_terminate():
+    successful_objects = []
+    while
+"""
+
+
+
+"""def rotate_qarm():  
+    #terminate = is_at_container(colour) 
+    old_reading = potentiometer.right()
+
+    while True: #While q arm is in front of container, keep running
+        new_reading = potentiometer.right()#takes value from potentiometer and converts to integer
+        delta = new_reading - old_reading #find the change in potentiometer value
+        increment = 450*delta 
+        arm.rotate_base(increment)
+        time.sleep(0.2)
+        old_reading = new_reading
+
+        print("Increment: " + str(increment))
+        print("p" + potentiometer.right())
+        """
 
 
 #---------------------------------------------------------------------------------
