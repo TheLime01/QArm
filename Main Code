@@ -12,23 +12,25 @@ potentiometer = potentiometer_interface()
 #--------------------------------------------------------------------------------
 # STUDENT CODE BEGINS
 #---------------------------------------------------------------------------------
+import random ### CHANGES HERE
 
 def main():
-    num = 2 #tells the code what container spawned
-    if num == 1 or num == 4:  
-        box = 'red'
-    elif num == 2 or num == 5:
-        box = 'green'
-    else:
-        box = 'blue'
-        
-    arm.spawn_cage(num) #calls every function
-    time.sleep(2)
-    pick_up()
-    time.sleep(2)
-    rotate_qarm(box)
-    time.sleep(10)
-    drop_off(box)
+    for i in range(6): ### CHANGES HERE
+        num = random.randint(1,6) #tells the code what container spawned ### CHANGES HERE
+        if num == 1 or num == 4:  
+            box = 'red'
+        elif num == 2 or num == 5:
+            box = 'green'
+        else:
+            box = 'blue'
+            
+        arm.spawn_cage(num) #calls every function
+        time.sleep(2)
+        pick_up()
+        time.sleep(2)
+        rotate_qarm(box)
+        time.sleep(10)
+        drop_off(box)
         
     
 
