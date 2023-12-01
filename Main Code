@@ -12,7 +12,7 @@ potentiometer = potentiometer_interface()
 #--------------------------------------------------------------------------------
 # STUDENT CODE BEGINS
 #---------------------------------------------------------------------------------
- """
+"""
 Menakan: Drop Off Function, Move Q Arm Function
 Sandhya: Main Function, Pick Up Function
 Emily: Rotate_QArm Function, Is At Autoclave Function
@@ -37,7 +37,11 @@ def main():
         time.sleep(2)
         rotate_qarm(box)
         time.sleep(5)
-        drop_off(box)
+        drop_off(box,num)
+
+        while True:
+            if potentiometer.right() == 0.5 and potentiometer.left() == 0.5:
+                break
         
 
         
@@ -52,7 +56,7 @@ def pick_up():  #moves the q arm to pick up container from spawn location
     
 def is_at_autoclave(colour): #compares q arm container to location of autoclave to know when to stop 
     if colour == "red":
-        container_coords = [0.046, -0.403] #26% 
+        container_coords = [0.021, -0.405] #25% 
     elif colour == "blue":
         container_coords = [0.021, 0.405] #75%
     elif colour == "green":
@@ -82,19 +86,22 @@ def rotate_qarm(colour):
 
         
 
-def drop_off(container): #drops off container based off left potentiometer value
+def drop_off(container,container_id): #drops off container based off left potentiometer value
     dropoff_position = potentiometer.left() 
     arm.activate_autoclaves()
-
-    if dropoff_position == 1:#Position 1, placement of a large container on top
-        move_QArm(-35,50)
-    
-    elif dropoff_position >= 0.5:#Position 2, Placement of a small container inside 
-        arm.open_autoclave(container, True)
-        time.sleep(2)
-        move_QArm(20,25)
-        time.sleep(2)
-        arm.open_autoclave(container, False)
+    while True:
+        dropoff_position = potentiometer.left()
+        if dropoff_position == 1 and container_id < 4:#Position 1, placement of a large container on top
+            move_QArm(-35,50)
+            break
+        
+        elif dropoff_position > 0.5 and container_id > 3:#Position 2, Placement of a small container inside 
+            arm.open_autoclave(container, True)
+            time.sleep(2)
+            move_QArm(20,25)
+            time.sleep(2)
+            arm.open_autoclave(container, False)
+            break
 
     arm.deactivate_autoclaves()
     arm.home()
@@ -106,8 +113,6 @@ def move_QArm(a, b): #moves q arm based on parameters
     time.sleep(2)
     arm.control_gripper(-45)
     time.sleep(2)
-
-
 #---------------------------------------------------------------------------------
 # STUDENT CODE ENDS
 #---------------------------------------------------------------------------------
